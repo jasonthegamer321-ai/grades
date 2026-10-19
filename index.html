@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Grades">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Jason's Grade Tracker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@300..500&display=swap">
+<style>
+/* Layout: single-column phone app, sticky profile header, fixed bottom tab bar, bottom-sheet editors */
+:root{
+  --bg:#ffffff; --surface:#ffffff; --ink:#2d5b8a; --muted:#6c88a6; --line:#c9cbd1;
+  --accent:#2d5b8a; --accent-soft:#e5eef7;
+  --good:#2f7d4f; --warn:#a86a12; --bad:#b23a3a; --good-bg:#e3f2e8; --warn-bg:#f8edd9; --bad-bg:#f8e3e3;
+  --display:"Google Sans","Google Sans Flex",system-ui,-apple-system,sans-serif;
+  --body:"Google Sans Flex","Google Sans",system-ui,-apple-system,sans-serif;
+}
+:root{color-scheme:light}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:560px;margin:0 auto}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:4px solid var(--accent)}
+header .wrap{display:flex;align-items:center;gap:12px;padding-block:12px}
+.avatar{width:48px;height:48px;border-radius:50%;padding:0;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-family:var(--display);font-weight:700;overflow:hidden;border:0;cursor:pointer;flex:none}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.who{min-width:0}
+.who b{color:#000;display:block;font-family:var(--display);font-size:1.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who span{font-size:.8rem;color:var(--muted)}
+main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+main .wrap{display:flex;flex-direction:column;gap:20px;padding-block:18px}
+h2{font-family:var(--display);font-size:1.35rem;margin:0;text-wrap:balance}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.label{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:14px;border:0;border-bottom:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;width:100%;cursor:pointer}
+.row:last-child{border-bottom:0}
+.list.gap{gap:6px;background:none;border:0;border-radius:0;overflow:visible}
+.list.gap .row{background:var(--surface);border:1.5px solid var(--line);border-radius:12px}
+.row:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grow{flex:1;min-width:0}
+.t{font-weight:700;overflow-wrap:anywhere}
+.s{font-size:.85rem;color:var(--muted)}
+.num{font-variant-numeric:tabular-nums;text-align:right;flex:none}
+.num b{display:block;font-size:1.05rem}
+.pill{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:40px;border-radius:12px;font-family:var(--display);font-weight:700;font-size:1.15rem;flex:none}
+.g-good{background:var(--good-bg);color:var(--good)} .g-warn{background:var(--warn-bg);color:var(--warn)} .g-bad{background:var(--bad-bg);color:var(--bad)}
+.list.edge{margin-left:calc(-1 * max(16px,env(safe-area-inset-left,0px)));margin-right:calc(-1 * max(16px,env(safe-area-inset-right,0px)));border-radius:0;border-left:0;border-right:0}
+.row.cls{box-sizing:border-box;padding:3px max(3px,env(safe-area-inset-right,0px)) 3px max(16px,env(safe-area-inset-left,0px));gap:14px;cursor:default}
+.row.cls .cdot{cursor:default}
+.row.att{box-sizing:border-box;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.row.att{gap:18px;padding-top:18px;padding-bottom:18px}
+.dblock{width:84px;flex:none;display:flex;flex-direction:column;align-items:center;text-align:center;color:#000;line-height:1.1}
+.dblock span{font-size:.78rem}
+.dblock b{font-size:1.45rem;font-weight:400;line-height:1.05;font-variant-numeric:tabular-nums}
+.row.att .dots{gap:4px;margin-top:0}
+.row.att .dot{width:18px;height:18px;font-size:.62rem;border-radius:50%;box-sizing:border-box}
+.dt-row{display:flex;justify-content:space-between;gap:16px;padding:10px 4px;border-bottom:1px solid var(--line);color:#000}
+.dt-head{font-weight:500;border-bottom:0;padding-bottom:4px}
+.nodata{min-height:62vh;display:grid;place-items:center;text-align:center;color:var(--bad);font-size:1.3rem;font-weight:400}
+.panel{border:1.5px solid var(--line);padding:16px 12px 12px;display:flex;flex-direction:column;gap:14px}
+.miss{color:var(--bad);font-size:.85rem}
+.fdl{font-size:.95rem;color:var(--bad);font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.row.att .dot:not(.on){border:2px solid #222;color:#222}
+.row.cls .grow{padding-block:12px}
+.row.cls .t{font-size:1.1rem;line-height:1.35}
+.row.cls .s{font-size:.86rem;line-height:1.35}
+.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;width:86px;align-self:stretch;min-height:72px;border-radius:0;flex:none;font-variant-numeric:tabular-nums}
+.tile b{font-family:var(--body);font-size:1.95rem;line-height:1.05}
+.tile span{font-size:.98rem}
+.tile b,.tile span{font-weight:300}
+.cdot{display:inline-block;width:16px;height:16px;border-radius:50%;margin-right:9px;vertical-align:-2px;cursor:pointer}
+.swatches{display:flex;flex-wrap:wrap;gap:12px}
+.swatches button{width:42px;height:42px;border-radius:50%;border:0;cursor:pointer}
+.swatches button.sel{outline:3px solid var(--ink);outline-offset:3px}
+.empty{padding:22px 16px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:14px}
+.btn{border:0;border-radius:12px;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer;background:var(--accent);color:var(--bg)}
+.btn.ghost{background:var(--accent-soft);color:var(--accent)}
+.btn.danger{background:var(--bad-bg);color:var(--bad)}
+.back{background:none;border:0;color:var(--accent);font:inherit;font-weight:700;padding:0;cursor:pointer;align-self:flex-start}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat b{display:block;font-family:var(--display);font-size:1.5rem;font-variant-numeric:tabular-nums}
+.stat span{font-size:.78rem;color:var(--muted)}
+.dots{display:flex;gap:4px;margin-top:4px}
+.dot{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line);font-size:.7rem;display:grid;place-items:center;color:var(--muted);font-variant-numeric:tabular-nums}
+.dot.on{background:var(--bad);border-color:var(--bad);color:var(--bg)}
+.chip{font-size:.75rem;font-weight:700;padding:3px 8px;border-radius:99px;white-space:nowrap}
+.whatif{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.whatif .inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.result{font-size:.95rem;padding:10px 12px;border-radius:10px;background:var(--accent-soft)}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);font-weight:700;min-width:0}
+input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%;box-sizing:border-box}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;width:38px;height:36px;font:inherit;cursor:pointer}
+.seg button.on{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav .tabs{display:grid;grid-template-columns:repeat(5,1fr);max-width:560px;margin:0 auto}
+nav button{background:none;border:0;color:var(--muted);font:inherit;font-size:.68rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 8px;cursor:pointer}
+nav button svg{width:24px;height:24px}
+nav button.on{color:var(--accent)}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:560px;border-radius:18px 18px 0 0;max-height:88%;overflow:auto;box-sizing:border-box;padding-block:16px calc(16px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px}
+.sheet .actions{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.foot{font-size:.75rem;color:var(--muted);text-align:center}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.9rem}
+body{font-weight:300}
+.hr .s,.hr .num{color:#8a8d93}
+.row.hr{padding:8px 12px;gap:10px;line-height:1.25}
+.row.hr .num b{font-size:1rem}
+.list,.list.gap .row,.btn,.empty,.stat,.whatif,.result,input,select,.sheet,.chip,.pill,.tile,.seg button{border-radius:0}
+b,strong,h2,.who b,.pill,.stat b,.t,.btn,.label,label.f,nav button,.chip,.back,.num b{font-weight:400}
+h2,.who b{font-weight:500}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .18s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.6}}}
+</style>
+</head>
+<body>
+
+
+<header><div class="wrap">
+  <button class="avatar" id="avatarBtn" aria-label="Change profile photo"></button>
+  <div class="who"><b id="nameEl"></b></div>
+  <input type="file" id="photoInput" accept="image/*" hidden>
+</div></header>
+<main><div class="wrap" id="view"></div></main>
+<nav><div class="tabs" id="tabs"></div></nav>
+<div id="sheetHost"></div>
+
+<script>
+const KEY='jason-grade-tracker-v1';
+const uid=()=>Math.random().toString(36).slice(2,9);
+const A=(name,earned,possible,date,due)=>({id:uid(),name,earned,possible,date,due:due||''});
+const seed={
+  profile:{name:'Jason Qin Yi Haak',photo:''},
+  classes:[
+    {id:'cul',name:'Culinary Arts 1',teacher:'Hail',room:'242',period:0,pct:52.2,assignments:[A('2 Cafe Shifts',50,null,'2026-10-16'),A('COOK: Pumpkin Rolls',15,null,'2026-10-15')]},
+    {id:'alg',name:'Algebra 2',teacher:'Kim, Min',room:'212',period:1,pct:57.0,assignments:[A('Classwork - Circuit Activity',0,null,'2026-10-16'),A('Homework Log #3',null,null,'2026-10-14')]},
+    {id:'lit',name:'Lit/Comp 3',teacher:'Quiming',room:'206',period:2,pct:66.1,assignments:[]},
+    {id:'ush',name:'US History',teacher:'Bottomley',room:'218',period:3,pct:44.1,assignments:[A('3.1 Unit 3 Map',5,null,'2026-10-15')]},
+    {id:'vc',name:'Visual Comm',teacher:'Block',room:'110',period:4,pct:96.4,assignments:[A('Fonts have feelings too! Part 2',20,null,'2026-10-15'),A('Fonts have feelings too! Part 1',20,null,'2026-10-15')]},
+    {id:'bio',name:'AP Biology',teacher:'Bottalico',room:'240',period:5,pct:39.4,assignments:[A('Enzyme Questions',5,null,'2026-10-16')]}
+  ],
+  attendance:[
+    {id:uid(),date:'2026-10-15',kind:'Period absence',periods:[0],note:''},
+    {id:uid(),date:'2026-10-12',kind:'Period absence',periods:[0],note:''},
+    {id:uid(),date:'2026-10-02',kind:'Full day — unexcused',periods:[],note:''},
+    {id:uid(),date:'2026-10-01',kind:'Full day — unexcused',periods:[],note:''},
+    {id:uid(),date:'2026-09-29',kind:'Period absence',periods:[0],note:''},
+    {id:uid(),date:'2026-09-28',kind:'Full day — unexcused',periods:[],note:''},
+    {id:uid(),date:'2026-09-25',kind:'Full day — unexcused',periods:[],note:''},
+    {id:uid(),date:'2026-09-24',kind:'Full day — unexcused',periods:[],note:''}
+  ],
+  events:[], sat:[]
+};
+let S; try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){} if(!S) S=structuredClone(seed);
+if(!S.seedUp){S.seedUp=1;const f=id=>S.classes.find(c=>c.id===id);
+  f('alg')?.assignments.push({id:uid(),name:'Classwork - Circuit Activity',earned:null,possible:null,date:'',due:'2026-10-19'});
+  f('vc')?.assignments.push({id:uid(),name:'Logo Mark Design - Personal Logo',earned:null,possible:null,date:'',due:'2026-10-23'});}
+if(!S.seedRecent2){S.seedRecent2=1;const f=id=>S.classes.find(c=>c.id===id);const add=(cid,name,earned,date)=>f(cid)?.assignments.push({id:uid(),name,earned,possible:null,date,due:''});
+  const hw=f('alg')?.assignments.find(a=>a.name==='Homework Log #3');if(hw){hw.missing=true;hw.date=hw.date||'2026-10-14'}
+  add('lit','The Scarlet Letter: Quiz (Ch. 1…)',21,'2026-10-13');
+  for(const n of ['COOK: Egg in Nest','COOK: French Toast','COOK: Breakfast Burrito 9-18-26','COOK: Eggs 9-16-26','COOK: Coffeecake 9-1-26','Illustrated Recipe']) add('cul',n,0,'2026-10-12');}
+for(const r of S.attendance){if(r.date==='2026-10-15'&&!r.details){r.details={0:'TARDY <30'};r.kind='Tardy'}}
+{const seen={cul:'2026-10-16',alg:'2026-10-16',lit:'2026-10-13',ush:'2026-10-15',vc:'2026-10-18',bio:'2026-10-16'};for(const c of S.classes){if(!c.updated&&seen[c.id])c.updated=seen[c.id]}}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let route={tab:'home',cls:null};
+
+// ---------- grade math ----------
+// Each class keeps the percentage you entered as its starting point. Assignments only count once
+// they have both earned and possible points; they're added on top of a 100-point "earlier work" base.
+const BASE=100;
+function totals(c){let E=c.pct/100*BASE,P=BASE;for(const a of c.assignments){if(a.earned!=null&&a.possible>0&&a.counted){E+=+a.earned;P+=+a.possible}}return{E,P}}
+function pctOf(c){const{E,P}=totals(c);return E/P*100}
+const PALETTE=['#d64545','#e5822a','#c79b12','#3a9d58','#3a7ccc','#8456c8','#d9607c','#5b6b7f'];
+const colorOf=c=>c.color||PALETTE[Math.max(0,S.classes.indexOf(c))%PALETTE.length];
+const letter=p=>p>=90?'A':p>=80?'B':p>=70?'C':p>=60?'D':'F';
+const tone=p=>p>=80?'g-good':p>=60?'g-warn':'g-bad';
+const fmtD=d=>d?new Date(d+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+const fmtLong=d=>new Date(d+'T12:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+const esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const today=()=>new Date().toISOString().slice(0,10);
+const score=a=>a.earned==null?'—':a.possible>0?`${a.earned}/${a.possible}`:`${a.earned}`;
+
+// ---------- icons ----------
+const ic={
+ home:'<path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+ grades:'<rect x="4" y="3" width="16" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 16l2.5-6 2.5 6M9 14h3M15 9v4M13 11h4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+ att:'<rect x="3.5" y="5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4M9 15l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+ events:'<path d="M12 3l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.8z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>',
+ sat:'<path d="M5 20V8M10 20V4M15 20v-9M20 20v-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+};
+const TABS=[['home','Home'],['grades','Grades'],['att','Attendance'],['events','Events'],['sat','SAT Scores']];
+
+// ---------- header ----------
+const DEFAULT_PHOTO='data:image/jpeg;base64,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';
+if(!S.profile.custom) S.profile.photo=DEFAULT_PHOTO;
+function renderHeader(){
+  document.getElementById('nameEl').textContent=S.profile.name;
+  const av=document.getElementById('avatarBtn');
+  av.innerHTML=S.profile.photo?`<img src="${S.profile.photo}" alt="">`:S.profile.name.split(' ').map(w=>w[0]).slice(0,2).join('');
+}
+document.getElementById('avatarBtn').onclick=()=>document.getElementById('photoInput').click();
+document.getElementById('photoInput').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const img=new Image(); const r=new FileReader();
+  r.onload=()=>{img.onload=()=>{const c=document.createElement('canvas');c.width=c.height=160;const x=c.getContext('2d');const s=Math.min(img.width,img.height);x.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,160,160);S.profile.photo=c.toDataURL('image/jpeg',.85);S.profile.custom=true;save();renderHeader()};img.src=r.result};
+  r.readAsDataURL(f);
+};
+
+// ---------- views ----------
+function go(tab,cls=null){route={tab,cls};render();window.scrollTo(0,0)}
+function render(){
+  document.getElementById('tabs').innerHTML=TABS.map(([k,l])=>`<button class="${route.tab===k?'on':''}" data-tab="${k}" aria-label="${l}"><svg viewBox="0 0 24 24">${ic[k]}</svg>${l}</button>`).join('');
+  const v=document.getElementById('view');
+  v.innerHTML=route.tab==='home'?home():route.tab==='grades'?(route.cls?classView():grades()):route.tab==='att'?attendance():route.tab==='events'?simpleList('events'):simpleList('sat');
+}
+function allAssignments(){return S.classes.flatMap(c=>c.assignments.map(a=>({...a,cls:c})))}
+function home(){
+  const t=today();
+  const up=allAssignments().filter(a=>a.due&&a.due>=t&&a.earned==null).sort((a,b)=>a.due.localeCompare(b.due));
+  const recent=allAssignments().filter(a=>a.earned!=null||a.missing).sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,40);
+  const item=(a,right)=>`<button class="row hr" data-edit="${a.cls.id}:${a.id}"><div class="grow"><div class="t">${esc(a.name)}</div><div class="s">${esc(a.cls.name)}</div>${a.missing&&a.earned==null?'<div class="miss">Missing assignment</div>':''}</div><div class="num s">${right}</div></button>`;
+  return `<section class="panel"><div class="sec-head"><h2 style="color:#000">Recently graded</h2></div>
+  ${recent.length?`<div class="list gap">${recent.map(a=>item(a,`<b>${score(a)}</b>${fmtD(a.date)}`)).join('')}</div>`:`<div class="empty">No graded work yet.</div>`}</section>
+  <section class="panel"><div class="sec-head"><h2 style="color:#000">Upcoming</h2></div>
+  ${up.length?`<div class="list gap">${up.map(a=>item(a,`<b>Due</b>${fmtD(a.due)}`)).join('')}</div>`:`<div class="empty">Nothing due yet.</div>`}</section>`;
+}
+function grades(){
+  return `<div class="sec-head"><h2>Classes</h2><span class="label">Current term</span></div>
+  <div class="list edge">${S.classes.slice().sort((a,b)=>a.period-b.period).map(c=>{const p=pctOf(c);return `<div class="row cls">
+    <div class="grow"><div class="t" style="color:${colorOf(c)}"><span class="cdot" style="background:${colorOf(c)}"></span>${esc(c.name)}</div><div class="s">${esc(c.teacher)}${c.room?' · Room '+esc(c.room):''} · Period ${c.period}</div>${c.updated?`<div class="s" style="opacity:.8">Last updated: ${fmtD(c.updated)}</div>`:''}</div>
+    <span class="tile ${tone(p)}"><b>${letter(p)}</b><span>${p.toFixed(1)}%</span></span></div>`}).join('')}</div>`;
+}
+function classView(){
+  const c=S.classes.find(x=>x.id===route.cls); if(!c){route.cls=null;return grades()}
+  const p=pctOf(c);
+  const list=c.assignments.slice().sort((a,b)=>(b.date||b.due||'').localeCompare(a.date||a.due||''));
+  return `<button class="back" data-back>‹ Classes</button>
+  <div class="sec-head"><div><h2>${esc(c.name)}</h2><div class="s">${esc(c.teacher)} · Period ${c.period}</div></div><span class="pill ${tone(p)}" style="min-width:64px">${letter(p)}</span></div>
+  <div class="stats"><div class="stat"><b>${p.toFixed(1)}%</b><span>Current</span></div><div class="stat"><b>${c.pct.toFixed(1)}%</b><span>Starting grade</span></div><div class="stat"><b>${c.assignments.filter(a=>a.counted).length}</b><span>Counted items</span></div></div>
+  <div class="sec-head"><span class="label">Assignments</span><div style="display:flex;gap:8px"><button class="btn ghost" data-edit-class="${c.id}">Edit class</button><button class="btn" data-add="${c.id}">Add</button></div></div>
+  ${list.length?`<div class="list">${list.map(a=>`<button class="row" data-edit="${c.id}:${a.id}"><div class="grow"><div class="t">${esc(a.name)}</div><div class="s">${a.date?'Graded '+fmtD(a.date):a.due?'Due '+fmtD(a.due):'No date'}${a.counted?'':' · not in grade yet'}</div></div><div class="num"><b>${score(a)}</b>${a.earned!=null&&a.possible>0?`<span class="s">${(a.earned/a.possible*100).toFixed(0)}%</span>`:''}</div></button>`).join('')}</div>`:`<div class="empty">No assignments yet. Tap Add to enter one.</div>`}
+  <div class="whatif"><span class="label">What-if</span>
+    <div class="inputs">
+      <label class="f">Goal grade<select id="wiGoal"><option value="70">C (70%)</option><option value="80">B (80%)</option><option value="90">A (90%)</option><option value="60">D (60%)</option></select></label>
+      <label class="f">Next assignment worth<input id="wiPts" type="number" inputmode="decimal" min="1" value="50"></label>
+    </div><div class="result" id="wiOut"></div>
+    <div class="s">Uses your starting grade as 100 points of earlier work, plus every assignment marked “counts toward grade.” Classes with weighted categories may differ.</div>
+  </div>`;
+}
+function whatIf(){
+  const c=S.classes.find(x=>x.id===route.cls); const out=document.getElementById('wiOut'); if(!c||!out) return;
+  const goal=+document.getElementById('wiGoal').value/100, pts=+document.getElementById('wiPts').value;
+  if(!(pts>0)){out.textContent='Enter how many points the next assignment is worth.';return}
+  const{E,P}=totals(c); const need=goal*(P+pts)-E;
+  if(need<=0) out.textContent=`You're already at or above that goal. Even a 0 out of ${pts} keeps you there.`;
+  else if(need>pts){
+    const full=(E+pts)/(P+pts)*100;
+    out.textContent=`Not reachable on one ${pts}-point assignment. A perfect score brings you to ${full.toFixed(1)}%. Try a bigger point value to see how much work it takes.`;
+  } else out.textContent=`You need ${Math.ceil(need*10)/10} out of ${pts} (${(need/pts*100).toFixed(0)}%) to reach ${letter(goal*100)}.`;
+}
+function attendance(){
+  const rows=S.attendance.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  const full=rows.filter(r=>r.kind.startsWith('Full day')).length;
+  const unex=rows.filter(r=>r.kind.includes('unexcused')).length;
+  const per=rows.filter(r=>!r.kind.startsWith('Full day')).reduce((n,r)=>n+r.periods.length,0);
+  const chipTone=k=>k.includes('unexcused')?'g-bad':k.includes('excused')?'g-good':'g-warn';
+  return `<div class="sec-head"><h2>Attendance</h2></div>
+  ${rows.length?`<div class="list edge">${rows.map(r=>{const fd=r.kind.startsWith('Full day');const dt=new Date(r.date+'T12:00');const hasD=r.details&&Object.keys(r.details).length;const tag=hasD?'button':'div';return `<${tag} class="row att"${hasD?` data-detail="${r.id}"`:''}><div class="dblock"><span>${dt.toLocaleDateString('en-US',{weekday:'long'})}</span><span>${dt.toLocaleDateString('en-US',{month:'long'})}</span><b>${dt.getDate()}</b></div><div class="grow">
+   ${fd?'':`<div class="dots">${[0,1,2,3,4,5].map(i=>`<span class="dot ${r.periods.includes(i)?'on':''}">${i}</span>`).join('')}</div>`}
+   ${fd?`<div class="fdl">${r.kind.includes('unexcused')?'Unexcused':'Excused'}</div>`:''}
+   ${r.note?`<div class="s">${esc(r.note)}</div>`:''}</div></${tag}>`}).join('')}</div>`:`<div class="empty">No attendance entries.</div>`}`;
+}
+function simpleList(k){
+  const isSat=k==='sat', rows=S[k];
+  if(!rows.length) return `<div class="nodata">No ${isSat?'SAT Scores':'Events'} available.</div>`;
+  return `<div class="sec-head"><h2>${isSat?'SAT Scores':'Events'}</h2></div>
+  ${rows.length?`<div class="list">${rows.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(r=>`<button class="row"><div class="grow"><div class="t">${esc(isSat?(r.label||'SAT'):r.title)}</div><div class="s">${fmtD(r.date)}${isSat?` · Math ${r.math??'—'} · R&W ${r.rw??'—'}`:(r.note?' · '+esc(r.note):'')}</div></div>${isSat?`<div class="num"><b>${(+r.math||0)+(+r.rw||0)||'—'}</b><span class="s">Total</span></div>`:''}</button>`).join('')}</div>`
+  :`<div class="empty">${isSat?'No SAT scores yet. Tap Add after a practice test or the real thing.':'No events yet. Tap Add for tests, deadlines, or anything coming up.'}</div>`}`;
+}
+
+// ---------- sheets ----------
+function sheet(title,body,onSave,onDelete){
+  const host=document.getElementById('sheetHost');
+  host.innerHTML=`<div class="scrim"><form class="sheet" id="sheetForm"><h2>${title}</h2>${body}<div id="delZone"></div>
+   <div class="actions">${onDelete?'<button type="button" class="btn danger" id="delBtn">Delete</button>':'<span></span>'}<div style="display:flex;gap:8px"><button type="button" class="btn ghost" id="cancelBtn">Cancel</button><button class="btn">Save</button></div></div></form></div>`;
+  const close=()=>host.innerHTML='';
+  host.querySelector('.scrim').onclick=e=>{if(e.target.classList.contains('scrim'))close()};
+  document.getElementById('cancelBtn').onclick=close;
+  document.getElementById('sheetForm').onsubmit=e=>{e.preventDefault();if(onSave()!==false){save();close();render()}};
+  if(onDelete) document.getElementById('delBtn').onclick=()=>{document.getElementById('delZone').innerHTML='<div class="confirm">Delete this for good?<button type="button" class="btn danger" id="delYes">Yes, delete</button></div>';document.getElementById('delYes').onclick=()=>{onDelete();save();close();render()}};
+}
+const val=id=>document.getElementById(id).value.trim();
+const numOrNull=id=>{const v=val(id);return v===''?null:+v};
+function editAssignment(cid,aid){
+  const classSel=!cid;
+  let c=S.classes.find(x=>x.id===cid), a=c&&c.assignments.find(x=>x.id===aid);
+  sheet(a?'Edit assignment':'New assignment',`
+   ${classSel?`<label class="f">Class<select id="fCls">${S.classes.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select></label>`:''}
+   <label class="f">Name<input id="fName" required value="${esc(a?.name)}"></label>
+   <div class="whatif inputs" style="padding:0;border:0;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <label class="f">Points earned<input id="fE" type="number" step="any" inputmode="decimal" value="${a?.earned??''}"></label>
+    <label class="f">Points possible<input id="fP" type="number" step="any" inputmode="decimal" value="${a?.possible??''}"></label>
+    <label class="f">Graded on<input id="fD" type="date" value="${a?.date||''}"></label>
+    <label class="f">Due<input id="fDue" type="date" value="${a?.due||''}"></label>
+   </div>
+   <label class="f" style="flex-direction:row;align-items:center;gap:8px"><input id="fCount" type="checkbox" style="width:auto" ${a?.counted?'checked':''}> Counts toward grade (add it once it's in the gradebook)</label>`,
+  ()=>{
+    if(classSel) c=S.classes.find(x=>x.id===val('fCls'));
+    const d={name:val('fName'),earned:numOrNull('fE'),possible:numOrNull('fP'),date:val('fD'),due:val('fDue'),counted:document.getElementById('fCount').checked};
+    if(a) Object.assign(a,d); else c.assignments.push({id:uid(),...d});
+    c.updated=today();
+  }, a?()=>{c.assignments=c.assignments.filter(x=>x!==a);c.updated=today()}:null);
+}
+function editClass(cid){
+  const c=S.classes.find(x=>x.id===cid);
+  sheet(c?'Edit class':'New class',`
+   <label class="f">Class name<input id="cN" required value="${esc(c?.name)}"></label>
+   <label class="f">Teacher<input id="cT" value="${esc(c?.teacher)}"></label>
+   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+    <label class="f">Room<input id="cR" value="${esc(c?.room)}"></label>
+    <label class="f">Period<input id="cP" type="number" value="${c?.period??0}"></label>
+    <label class="f">Starting %<input id="cPct" type="number" step="any" required value="${c?.pct??''}"></label>
+   </div><div class="s">Starting % is the grade from your school portal. Update it whenever the portal changes, and turn off “counts” on assignments it already includes.</div>`,
+  ()=>{const d={name:val('cN'),teacher:val('cT'),room:val('cR'),period:+val('cP')||0,pct:+val('cPct')||0};
+    d.updated=today();if(c) Object.assign(c,d); else S.classes.push({id:uid(),...d,assignments:[]});},
+  c?()=>{S.classes=S.classes.filter(x=>x!==c);route.cls=null}:null);
+}
+function editAtt(id){
+  const r=S.attendance.find(x=>x.id===id); let per=new Set(r?.periods||[]);
+  const kinds=['Period absence','Tardy','Full day — unexcused','Full day — excused','Period — excused'];
+  sheet(r?'Edit attendance':'New attendance entry',`
+   <label class="f">Date<input id="aD" type="date" required value="${r?.date||today()}"></label>
+   <label class="f">Type<select id="aK">${kinds.map(k=>`<option ${r?.kind===k?'selected':''}>${k}</option>`).join('')}</select></label>
+   <div class="f" style="font-size:.8rem;color:var(--muted);font-weight:700">Periods<div class="seg" id="aSeg">${[0,1,2,3,4,5].map(i=>`<button type="button" data-p="${i}" class="${per.has(i)?'on':''}">${i}</button>`).join('')}</div></div>
+   <label class="f">Note<input id="aN" value="${esc(r?.note)}"></label>`,
+  ()=>{const d={date:val('aD'),kind:val('aK'),periods:[...per].sort(),note:val('aN')};if(r)Object.assign(r,d);else S.attendance.push({id:uid(),...d})},
+  r?()=>{S.attendance=S.attendance.filter(x=>x!==r)}:null);
+  document.getElementById('aSeg').onclick=e=>{if(e.target.dataset.p==null)return;const p=+e.target.dataset.p;per.has(p)?per.delete(p):per.add(p);e.target.classList.toggle('on')};
+}
+function editSimple(k,id){
+  const isSat=k==='sat', r=S[k].find(x=>x.id===id);
+  sheet(r?'Edit':(isSat?'New SAT score':'New event'), isSat?`
+   <label class="f">Label<input id="sL" placeholder="Practice test 1" value="${esc(r?.label)}"></label>
+   <label class="f">Date<input id="sD" type="date" value="${r?.date||today()}"></label>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><label class="f">Math (200–800)<input id="sM" type="number" min="200" max="800" value="${r?.math??''}"></label><label class="f">Reading & Writing<input id="sR" type="number" min="200" max="800" value="${r?.rw??''}"></label></div>`:`
+   <label class="f">Title<input id="eT" required value="${esc(r?.title)}"></label>
+   <label class="f">Date<input id="eD" type="date" value="${r?.date||today()}"></label>
+   <label class="f">Note<input id="eN" value="${esc(r?.note)}"></label>`,
+  ()=>{const d=isSat?{label:val('sL'),date:val('sD'),math:numOrNull('sM'),rw:numOrNull('sR')}:{title:val('eT'),date:val('eD'),note:val('eN')};if(r)Object.assign(r,d);else S[k].push({id:uid(),...d})},
+  r?()=>{S[k]=S[k].filter(x=>x!==r)}:null);
+}
+
+function pickColor(cid){
+  const c=S.classes.find(x=>x.id===cid); let chosen=colorOf(c);
+  sheet('Color for '+esc(c.name),`<div class="swatches" id="sw">${PALETTE.map(col=>`<button type="button" data-sw="${col}" aria-label="${col}" style="background:${col}" class="${col===chosen?'sel':''}"></button>`).join('')}</div>
+   <label class="f">Or pick any color<input type="color" id="swCustom" value="${chosen}" style="height:44px;padding:4px"></label>`,
+   ()=>{c.color=chosen});
+  document.getElementById('sw').onclick=e=>{const b=e.target.closest('[data-sw]');if(!b)return;chosen=b.dataset.sw;document.querySelectorAll('#sw button').forEach(x=>x.classList.toggle('sel',x===b));document.getElementById('swCustom').value=chosen};
+  document.getElementById('swCustom').oninput=e=>{chosen=e.target.value;document.querySelectorAll('#sw button').forEach(x=>x.classList.remove('sel'))};
+}
+
+function showDetail(id){
+  const r=S.attendance.find(x=>x.id===id); if(!r) return;
+  const host=document.getElementById('sheetHost');
+  const title=new Date(r.date+'T12:00').toLocaleDateString('en-US',{month:'long',day:'numeric'});
+  host.innerHTML=`<div class="scrim"><div class="sheet" role="dialog" aria-label="${title}"><h2 style="text-align:center;color:#000">${title}</h2>
+   <div class="dt-row dt-head"><span>Period</span><span>Description</span></div>
+   ${Object.entries(r.details).map(([p,d])=>`<div class="dt-row"><span>${esc(p)}</span><span>${esc(d)}</span></div>`).join('')}
+   <button class="btn" id="doneBtn" style="align-self:center;min-width:150px;margin-top:12px">Done</button></div></div>`;
+  const close=()=>host.innerHTML='';
+  host.querySelector('.scrim').onclick=e=>{if(e.target.classList.contains('scrim'))close()};
+  document.getElementById('doneBtn').onclick=close;
+}
+
+// ---------- events ----------
+document.addEventListener('click',e=>{
+  const cd=e.target.closest('[data-color]'); if(cd&&!cd.closest('.sheet')){pickColor(cd.dataset.color);return}
+  const b=e.target.closest('button'); if(!b||b.closest('.sheet')) return;
+  const d=b.dataset;
+  if(d.tab) go(d.tab);
+  else if(d.cls) go('grades',d.cls);
+  else if('back' in d) go('grades');
+  else if(d.edit){const[c,a]=d.edit.split(':');editAssignment(c,a)}
+  else if(d.add) editAssignment(d.add);
+  else if('addAny' in d) editAssignment(null);
+  else if(d.editClass) editClass(d.editClass);
+  else if('addClass' in d) editClass(null);
+  else if('addAtt' in d) editAtt(null);
+  else if(d.detail) showDetail(d.detail);
+  else if(d.addSimple) editSimple(d.addSimple);
+  else if(d.simple){const[k,id]=d.simple.split(':');editSimple(k,id)}
+});
+document.addEventListener('input',e=>{if(e.target.id==='wiGoal'||e.target.id==='wiPts')whatIf()});
+document.addEventListener('change',e=>{if(e.target.id==='wiGoal')whatIf()});
+const _render=render; render=function(){_render();whatIf()};
+renderHeader(); render();
+
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+
+</body>
+</html>
